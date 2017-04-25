@@ -1,3 +1,13 @@
+# Webstorm project folder
+.idea
+
+# Dependences folder
+/node_modules
+
+# Test
+test.js
+/test
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db

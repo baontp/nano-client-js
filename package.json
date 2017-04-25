@@ -1,0 +1,15 @@
+{
+  "name": "nano-client",
+  "version": "1.0.0",
+  "description": "js-client sdk for nano-framework",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "hashmap": "^2.1.0",
+    "ws": "^2.0.3"
+  }
+}
