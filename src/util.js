@@ -1,5 +1,7 @@
 'use strict'; 
 
+var Client = require('./client');
+
 exports.generateNumber = function() {
     var val = Math.random() * 10000;
     var i = parseInt(val.toFixed());
@@ -73,6 +75,8 @@ exports.bytesToInteger = function (bytes, offset) {
     return value;
 };
 
-exports.log = function(msg){
-    console.log(msg);
+exports.log = function(){
+    if(Client.logEnabled) {
+        console.log.apply(null, arguments);
+    }
 };

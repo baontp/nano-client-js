@@ -1,5 +1,7 @@
 'use strict';
 
+var PayloadType = require('./constants').PayloadType;
+
 var MessageBuilder = {};
 module.exports = MessageBuilder;
 
@@ -22,30 +24,30 @@ MessageBuilder.buildActionRequest = function (action, args) {
     return JSON.stringify(json);
 };
 
-MessageBuilder.buildRequest = function (sessionId, requestType, payload, isText, reserved) {
-    if (typeof reserved === "undefined") {
-        reserved = 0;
-    }
+MessageBuilder.buildRequest = function (sessionId, requestType, payload, payloadType) {
+    var _payload = !!payload ? payload : '';
+    var _payloadType = !!payloadType ? payloadType : PayloadType.JSON;
+
     var index = 0;
-    var byteArray = new Uint8Array(7 + payload.length);
+    var byteArray = new Uint8Array(7 + _payload.length);
     byteArray[index++] = 0;
     byteArray[index++] = requestType;
     byteArray[index++] = 0;
 
-    var payloadSize = payload.length;
-    byteArray[index++] = payloadSize >>> 24;
-    byteArray[index++] = payloadSize >>> 16;
-    byteArray[index++] = payloadSize >>> 8;
-    byteArray[index++] = payloadSize;
+    var _payloadSize = _payload.length;
+    byteArray[index++] = _payloadSize >>> 24;
+    byteArray[index++] = _payloadSize >>> 16;
+    byteArray[index++] = _payloadSize >>> 8;
+    byteArray[index++] = _payloadSize;
 
     var i = 0;
-    if (isText == false) {
-        for (; i < payloadSize; ++i) {
-            byteArray[index++] = payload[i];
+    if (_payloadType == _payloadType.BINARY) {
+        for (; i < _payloadSize; ++i) {
+            byteArray[index++] = _payload[i];
         }
     } else {
-        for (; i < payloadSize; ++i) {
-            byteArray[index++] = payload.charCodeAt(i);
+        for (; i < _payloadSize; ++i) {
+            byteArray[index++] = _payload.charCodeAt(i);
         }
     }
     return byteArray;

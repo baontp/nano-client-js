@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "detect-browser": "^1.7.0",
     "hashmap": "^2.1.0",
     "ws": "^2.0.3"
   }

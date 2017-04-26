@@ -39,9 +39,14 @@ RequestType[RequestType['USER_ACTION'] = 1] = 'USER_ACTION';
 RequestType[RequestType['CREATE_ROOM'] = 2] = 'CREATE_ROOM';
 RequestType[RequestType['JOIN_ROOM'] = 3] = 'JOIN_ROOM';
 RequestType[RequestType['LEAVE_ROOM'] = 4] = 'LEAVE_ROOM';
+RequestType[RequestType['FIND_ROOM'] = 5] = 'FIND_ROOM';
 
 var UpdateType = {};
 exports.UpdateType = UpdateType;
+
+var NotifyType = {};
+exports.NotifyType = NotifyType;
+NotifyType[NotifyType['USER_ACTION'] = 1] = 'USER_ACTION';
 
 var ServiceType = {};
 exports.ServiceType = ServiceType;
@@ -50,3 +55,7 @@ ServiceType[ServiceType['USER_AUTH'] = 0] = 'USER_AUTH';
 var EventType = {};
 exports.EventType = EventType;
 EventType[EventType['onConnectionDone'] = 0] = 'onConnectionDone';
+EventType[EventType['onCreateRoomDone'] = 2] = 'onCreateRoomDone';
+EventType[EventType['onJoinRoomDone'] = 3] = 'onJoinRoomDone';
+EventType[EventType['onLeaveRoomDone'] = 4] = 'onLeaveRoomDone';
+EventType[EventType['onFindRoomDone'] = 5] = 'onFindRoomDone';
