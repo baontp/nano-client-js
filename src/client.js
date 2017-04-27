@@ -6,6 +6,7 @@ var ee = require('events');
 var MessageBuilder = require('./message-builder');
 var Response = require('./response');
 var Notify = require('./notify');
+var UpdatePeer = require('./update-peer');
 var Room = require('./room');
 var util = require('./util');
 var HashMap = require('hashmap');
@@ -17,7 +18,7 @@ var ResultCode = constants.ResultCode;
 var RoomType = constants.RoomType;
 var RequestType = constants.RequestType;
 var NotifyType = constants.NotifyType;
-var EventType = constants.EventType;
+var Event = constants.Event;
 
 var client = (function () {
     function Client(hostname, port) {
@@ -26,6 +27,7 @@ var client = (function () {
         this._port = port;
         this._eventHandlers = {};
         this._userActionHandler = {};
+        this._updatePeerHandlers = {};
         this._sessionId = 0;
         this._recovering = false;
     }
@@ -108,6 +110,10 @@ var client = (function () {
         this._userActionHandler = handler;
     };
 
+    Client.prototype.onUpdatePeer = function (updateType, handler) {
+        this._updatePeerHandlers[updateType] = handler;
+    };
+
     Client.prototype.send = function (data) {
         if (!!this._socket) {
             this._socket.send(data);
@@ -122,9 +128,12 @@ var client = (function () {
             if (data[numDecoded] == MessageType.RESPONSE) {
                 var res = new Response(data, numDecoded);
                 numDecoded += this.handleResponse(res);
-            } else if (data[numDecoded] == MessageType.UPDATE) {
+            } else if (data[numDecoded] == MessageType.NOTIFY) {
                 var notify = new Notify(data, numDecoded);
                 numDecoded += this.handleNotify(notify);
+            } else if (data[numDecoded] == MessageType.UPDATE) {
+                var updatePeer = new UpdatePeer(data, numDecoded);
+                numDecoded += this.handleUpdatePeer(updatePeer);
             }
         }
     };
@@ -146,11 +155,11 @@ var client = (function () {
                     this._isConnected = false;
                 }
 
-                this.emitResponse(EventType.onConnectionDone, resultCode, payload.message);
+                this.emitResponse(Event.onConnectionDone, resultCode, payload.message);
                 break;
             }
             case RequestType.USER_ACTION: {
-                this.emitResponse(EventType.onUserActionDone, resultCode, payload.a);
+                this.emitResponse(Event.onUserActionDone, resultCode, payload.a, payload.m);
                 break;
             }
             case RequestType.JOIN_ROOM:
@@ -167,11 +176,30 @@ var client = (function () {
     Client.prototype.handleNotify = function (message) {
         var notifyType = message.getNotifyType();
         var payload = JSON.parse(message.getPayloadString());
+        var room;
         switch (notifyType) {
             case NotifyType.USER_ACTION: {
                 this.emitUserAction(payload.a, payload.p);
                 break;
             }
+            case NotifyType.USER_JOINED_ROOM: {
+                room = new Room(payload);
+                this.emitNotify(Event.onUserJoinedRoom, room);
+                break;
+            }
+            case NotifyType.USER_LEFT_ROOM: {
+                room = new Room(payload);
+                this.emitNotify(Event.onUserLeftRoom, room);
+                break;
+            }
+        }
+    };
+
+    Client.prototype.handleUpdatePeer = function (message) {
+        if(message.getPayloadType() == PayloadType.JSON) {
+            this.emitUpdatePeer(message.getUpdateType(), message.getPayloadString());
+        } else {
+            this.emitUpdatePeer(message.getUpdateType(), message.getPayload());
         }
     };
 
@@ -185,16 +213,16 @@ var client = (function () {
         this.send(data.buffer);
     };
 
-    Client.prototype.emitResponse = function (eventType) {
+    Client.prototype.emitResponse = function (event) {
         var args = [];
         for (var i = 1; i < arguments.length; ++i) {
             args[i - 1] = arguments[i];
         }
         var eventHandler = this._eventHandlers['response'];
-        if (eventHandler[EventType[eventType]]) {
-            eventHandler[EventType[eventType]].apply(this, args);
+        if (eventHandler[Event[event]]) {
+            eventHandler[Event[event]].apply(this, args);
         } else {
-            util.log('>>    Response Event ', EventType[eventType], 'is not handled');
+            util.log('>>    Response Event ', Event[event], 'is not handled');
         }
     };
 
@@ -204,10 +232,10 @@ var client = (function () {
             args[i - 1] = arguments[i];
         }
         var eventHandler = this._eventHandlers['notify'];
-        if (eventHandler[EventType[eventType]]) {
-            eventHandler[EventType[eventType]].apply(this, args);
+        if (eventHandler[Event[eventType]]) {
+            eventHandler[Event[eventType]].apply(this, args);
         } else {
-            util.log('>>    Notify Event ', EventType[eventType], 'is not handled');
+            util.log('>>    Notify Event ', Event[eventType], 'is not handled');
         }
     };
 
@@ -216,6 +244,14 @@ var client = (function () {
             this._userActionHandler[action].apply(this, params);
         } else {
             util.log('user action', action, 'is not handled');
+        }
+    };
+
+    Client.prototype.emitUpdatePeer = function (updateType, payload) {
+        if (this._updatePeerHandlers[updateType]) {
+            this._updatePeerHandlers[updateType].call(this, payload);
+        } else {
+            util.log('update type', updateType, ' is not handled');
         }
     };
 

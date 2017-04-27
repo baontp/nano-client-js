@@ -9,3 +9,4 @@ exports.RoomType = constant.RoomType;
 exports.RequestType = constant.RequestType;
 
 exports.Client = require('./src/client');
+exports.Util = require('./src/util');

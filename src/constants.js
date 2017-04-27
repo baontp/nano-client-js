@@ -11,7 +11,8 @@ var MessageType = {};
 exports.MessageType = MessageType;
 MessageType[MessageType['REQUEST'] = 0] = 'REQUEST';
 MessageType[MessageType['RESPONSE'] = 1] = 'RESPONSE';
-MessageType[MessageType['UPDATE'] = 2] = 'UPDATE';
+MessageType[MessageType['NOTIFY'] = 2] = 'NOTIFY';
+MessageType[MessageType['UPDATE'] = 3] = 'UPDATE';
 
 
 var PayloadType = {};
@@ -44,22 +45,24 @@ RequestType[RequestType['JOIN_ROOM'] = 3] = 'JOIN_ROOM';
 RequestType[RequestType['LEAVE_ROOM'] = 4] = 'LEAVE_ROOM';
 RequestType[RequestType['FIND_ROOM'] = 5] = 'FIND_ROOM';
 
-var UpdateType = {};
-exports.UpdateType = UpdateType;
-
 var NotifyType = {};
 exports.NotifyType = NotifyType;
 NotifyType[NotifyType['USER_ACTION'] = 1] = 'USER_ACTION';
+NotifyType[NotifyType['USER_JOINED_ROOM'] = 2] = 'USER_JOINED_ROOM';
+NotifyType[NotifyType['USER_LEFT_ROOM'] = 3] = 'USER_LEFT_ROOM';
 
 var ServiceType = {};
 exports.ServiceType = ServiceType;
 ServiceType[ServiceType['USER_AUTH'] = 0] = 'USER_AUTH';
 
-var EventType = {};
-exports.EventType = EventType;
-EventType[EventType['onConnectionDone'] = 0] = 'onConnectionDone';
-EventType[EventType['onUserActionDone'] = 1] = 'onUserActionDone';
-EventType[EventType['onCreateRoomDone'] = 2] = 'onCreateRoomDone';
-EventType[EventType['onJoinRoomDone'] = 3] = 'onJoinRoomDone';
-EventType[EventType['onLeaveRoomDone'] = 4] = 'onLeaveRoomDone';
-EventType[EventType['onFindRoomDone'] = 5] = 'onFindRoomDone';
+var Event = {};
+exports.Event = Event;
+Event[Event['onConnectionDone'] = 0] = 'onConnectionDone';
+Event[Event['onUserActionDone'] = 1] = 'onUserActionDone';
+Event[Event['onCreateRoomDone'] = 2] = 'onCreateRoomDone';
+Event[Event['onJoinRoomDone'] = 3] = 'onJoinRoomDone';
+Event[Event['onLeaveRoomDone'] = 4] = 'onLeaveRoomDone';
+Event[Event['onFindRoomDone'] = 5] = 'onFindRoomDone';
+
+Event[Event['onUserJoinedRoom'] = 100] = 'onUserJoinedRoom';
+Event[Event['onUserLeftRoom'] = 101] = 'onUserLeftRoom';
