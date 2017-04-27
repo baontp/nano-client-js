@@ -3,10 +3,11 @@
  */
 var room = (function () {
     function Room(payload) {
-        this._id = payload.i;
-        this._owner = payload.o;
-        this._name = payload.n;
-        this._maxUser = payload.m;
+            this.id = payload.i;
+            this.owner = payload.o;
+            this.name = payload.n;
+            this.maxUser = payload.m;
+            this.desc = payload.d;
     }
 
     return Room;

@@ -31,6 +31,9 @@ ResultCode[ResultCode['INSUFFICIENT_MONEY'] = 5] = 'INSUFFICIENT_MONEY';
 ResultCode[ResultCode['SERVICE_UNAVAILABLE'] = 6] = 'SERVICE_UNAVAILABLE';
 ResultCode[ResultCode['SESSION_OVERRIDE'] = 7] = 'SESSION_OVERRIDE';
 ResultCode[ResultCode['SUCCESS_RECOVERED'] = 8] = 'SUCCESS_RECOVERED';
+ResultCode[ResultCode['UNKNOWN_ERROR'] = 9] = 'UNKNOWN_ERROR';
+ResultCode[ResultCode['CONNECTION_ERROR'] = 10] = 'CONNECTION_ERROR';
+ResultCode[ResultCode['RESOURCE_NOT_FOUND'] = 11] = 'RESOURCE_NOT_FOUND';
 
 var RequestType = {};
 exports.RequestType = RequestType;
@@ -55,6 +58,7 @@ ServiceType[ServiceType['USER_AUTH'] = 0] = 'USER_AUTH';
 var EventType = {};
 exports.EventType = EventType;
 EventType[EventType['onConnectionDone'] = 0] = 'onConnectionDone';
+EventType[EventType['onUserActionDone'] = 1] = 'onUserActionDone';
 EventType[EventType['onCreateRoomDone'] = 2] = 'onCreateRoomDone';
 EventType[EventType['onJoinRoomDone'] = 3] = 'onJoinRoomDone';
 EventType[EventType['onLeaveRoomDone'] = 4] = 'onLeaveRoomDone';

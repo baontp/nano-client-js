@@ -18,8 +18,8 @@ MessageBuilder.buildAuthRequest = function (recovery, user, authData) {
 
 MessageBuilder.buildActionRequest = function (action, args) {
     var json = {
-        action: action,
-        params: args
+        a: action,
+        p: args
     };
     return JSON.stringify(json);
 };

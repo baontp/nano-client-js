@@ -16,6 +16,7 @@ var PayloadType = constants.PayloadType;
 var ResultCode = constants.ResultCode;
 var RoomType = constants.RoomType;
 var RequestType = constants.RequestType;
+var NotifyType = constants.NotifyType;
 var EventType = constants.EventType;
 
 var client = (function () {
@@ -24,12 +25,13 @@ var client = (function () {
         this._hostname = hostname;
         this._port = port;
         this._eventHandlers = {};
+        this._userActionHandler = {};
         this._sessionId = 0;
         this._recovering = false;
     }
 
-    if(browser.name == 'node') {
-        var WebSocket = require('ws') ;
+    if (browser.name == 'node') {
+        var WebSocket = require('ws');
         /**
          *
          * @param {String} hostname
@@ -46,6 +48,7 @@ var client = (function () {
             var client = this;
             this._socket = new WebSocket('ws://' + this._hostname + ':' + this._port);
             this._socket.on('open', function () {
+                util.log('socket opened');
                 client._isConnected = true;
                 var payload = MessageBuilder.buildAuthRequest(0, userName, authData);
                 var data = MessageBuilder.buildRequest(0, RequestType.AUTHENTICATE_USER, payload);
@@ -53,6 +56,7 @@ var client = (function () {
             });
 
             this._socket.on('close', function () {
+                util.log('socket closed');
                 client._isConnected = false;
             });
 
@@ -78,6 +82,7 @@ var client = (function () {
             this._socket = new WebSocket('ws://' + this._hostname + ':' + this._port);
             this._socket.binaryType = 'arraybuffer';
             this._socket.onOpen = function () {
+                util.log('socket opened');
                 client._isConnected = true;
                 var payload = MessageBuilder.buildAuthRequest(0, userName, authData);
                 var data = MessageBuilder.buildRequest(0, RequestType.AUTHENTICATE_USER, payload);
@@ -85,6 +90,7 @@ var client = (function () {
             };
 
             this._socket.onClose = function () {
+                util.log('socket closed');
                 client._isConnected = false;
             };
 
@@ -96,6 +102,10 @@ var client = (function () {
 
     Client.prototype.onEvent = function (key, handler) {
         this._eventHandlers[key] = handler;
+    };
+
+    Client.prototype.onUserAction = function (handler) {
+        this._userActionHandler = handler;
     };
 
     Client.prototype.send = function (data) {
@@ -136,29 +146,33 @@ var client = (function () {
                     this._isConnected = false;
                 }
 
-                this.emitResponseEvent(EventType.onConnectionDone, resultCode, payload.message);
+                this.emitResponse(EventType.onConnectionDone, resultCode, payload.message);
                 break;
             }
             case RequestType.USER_ACTION: {
+                this.emitResponse(EventType.onUserActionDone, resultCode, payload.a);
                 break;
             }
             case RequestType.JOIN_ROOM:
             case RequestType.CREATE_ROOM:
             case RequestType.LEAVE_ROOM:
             case RequestType.FIND_ROOM: {
-                var room = null;
-                try {
-                    room = new Room(payload);
-                } catch (err) {}
-
-                this.emitResponseEvent(EventType[requestType], room, resultCode);
+                var room = new Room(payload);
+                this.emitResponse(requestType, room, resultCode);
                 break;
             }
         }
     };
 
-    Client.prototype.handleNotify = function (mesage) {
-        this.emitNotifyEvent(0);
+    Client.prototype.handleNotify = function (message) {
+        var notifyType = message.getNotifyType();
+        var payload = JSON.parse(message.getPayloadString());
+        switch (notifyType) {
+            case NotifyType.USER_ACTION: {
+                this.emitUserAction(payload.a, payload.p);
+                break;
+            }
+        }
     };
 
     Client.prototype.sendAction = function (action) {
@@ -171,7 +185,7 @@ var client = (function () {
         this.send(data.buffer);
     };
 
-    Client.prototype.emitResponseEvent = function (eventType) {
+    Client.prototype.emitResponse = function (eventType) {
         var args = [];
         for (var i = 1; i < arguments.length; ++i) {
             args[i - 1] = arguments[i];
@@ -179,10 +193,12 @@ var client = (function () {
         var eventHandler = this._eventHandlers['response'];
         if (eventHandler[EventType[eventType]]) {
             eventHandler[EventType[eventType]].apply(this, args);
+        } else {
+            util.log('>>    Response Event ', EventType[eventType], 'is not handled');
         }
     };
 
-    Client.prototype.emitNotifyEvent = function (eventType) {
+    Client.prototype.emitNotify = function (eventType) {
         var args = [];
         for (var i = 1; i < arguments.length; ++i) {
             args[i - 1] = arguments[i];
@@ -190,6 +206,16 @@ var client = (function () {
         var eventHandler = this._eventHandlers['notify'];
         if (eventHandler[EventType[eventType]]) {
             eventHandler[EventType[eventType]].apply(this, args);
+        } else {
+            util.log('>>    Notify Event ', EventType[eventType], 'is not handled');
+        }
+    };
+
+    Client.prototype.emitUserAction = function (action, params) {
+        if (this._userActionHandler[action]) {
+            this._userActionHandler[action].apply(this, params);
+        } else {
+            util.log('user action', action, 'is not handled');
         }
     };
 
@@ -199,14 +225,14 @@ var client = (function () {
     };
 
     Client.prototype.joinRoom = function (roomId) {
-        var data = MessageBuilder.buildRequest(this._sessionId, RequestType.JOIN_ROOM, {id: roomId });
+        var data = MessageBuilder.buildRequest(this._sessionId, RequestType.JOIN_ROOM, JSON.stringify({id: roomId}));
         this.send(data.buffer);
     };
 
     return Client;
 })();
 
-client.recoveryAllowance = 0;
-client.logEnabled = true;
+exports.recoveryAllowance = 0;
+exports.logEnabled = true;
 
 module.exports = client;

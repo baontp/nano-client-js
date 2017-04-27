@@ -9,14 +9,13 @@ var UpdateType = constants.UpdateType;
 
 var Notify = (function () {
     function Notify(responseBytes, startIndex) {
-        this.messageType = responseBytes[startIndex + 0];
-        this.updateType = responseBytes[startIndex + 1];
-        this.reserved = responseBytes[startIndex + 2];
-        this.payLoadType = responseBytes[startIndex + 3];
-        this.payLoadSize = util.bytesToInteger(responseBytes, startIndex + 4);
+        this.messageType = responseBytes[startIndex++];
+        this.notifyType = responseBytes[startIndex++];
+        this.payLoadType = responseBytes[startIndex++];
+        this.payLoadSize = util.bytesToInteger(responseBytes, startIndex); startIndex += 4;
         this.payLoad = new Uint8Array(this.payLoadSize);
         for (var i = 0; i < this.payLoadSize; i++) {
-            this.payLoad[i] = responseBytes[8 + startIndex + i];
+            this.payLoad[i] = responseBytes[startIndex + i];
         }
     }
 
@@ -24,8 +23,8 @@ var Notify = (function () {
         return this.messageType;
     };
 
-    Notify.prototype.getUpdateType = function () {
-        return this.updateType;
+    Notify.prototype.getNotifyType = function () {
+        return this.notifyType;
     };
 
     Notify.prototype.getPayloadType = function () {
@@ -47,7 +46,7 @@ var Notify = (function () {
     Notify.prototype.debug = function () {
         util.log("=========Notify=========");
         util.log("messageType : " + MessageType[this.getMessageType()]);
-        util.log("updateType  : " + UpdateType[this.getUpdateType()]);
+        util.log("notifyType  : " + UpdateType[this.getUpdateType()]);
         util.log("payLoadType : " + PayloadType[this.getPayloadType()]);
         util.log("payLoadSize : " + this.getPayloadSize());
         util.log("payLoad     : " + this.getPayloadString());

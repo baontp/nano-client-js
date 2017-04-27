@@ -5,6 +5,7 @@ var clientInst = new Client('localhost', 9000);
 clientInst.connect('baontp', {});
 
 setTimeout(function () {
+    console.log("findRoom");
     clientInst.findRoom();
 }, 2000);
 
@@ -13,14 +14,18 @@ clientInst.onEvent('response', {
         console.log(result + ' : ' + msg);
     },
 
+    onUserActionDone: function (result, action) {
+        console.log('perform action ' + action + ' with result ' + ResultCode[result]);
+    },
+
     onFindRoomDone: function (room, result) {
-        if(!!room){
+        if (result == ResultCode.SUCCESS) {
             clientInst.joinRoom(room.id);
         }
     },
 
-    onJoinRoomDone:function (room, result) {
-        if(result == ResultCode.SUCCESS) {
+    onJoinRoomDone: function (room, result) {
+        if (result == ResultCode.SUCCESS) {
             setTimeout(function () {
                 clientInst.sendAction('chat', 1, 'hello', 'bao2');
                 // clientInst.sendAction('buyTicket', [0, 1, 2, 3, 4, 5]);
@@ -37,9 +42,12 @@ clientInst.onEvent('notify', {
     }
 });
 
-clientInst.onEvent('user-action', {});
-
-var browser = require('detect-browser');
-
-console.log(browser.name);
-console.log(browser.version);
+clientInst.onUserAction({
+    chat: function (sender, message, isPrivate) {
+        if (isPrivate) {
+            console.log('on private chat', sender,": ", message);
+        } else {
+            console.log('on Chat', sender,": ", message);
+        }
+    }
+});
