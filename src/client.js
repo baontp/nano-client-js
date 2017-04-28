@@ -87,7 +87,7 @@ var client = (function () {
             var client = this;
             this._socket = new WebSocket('ws://' + this._hostname + ':' + this._port);
             this._socket.binaryType = 'arraybuffer';
-            this._socket.onOpen = function () {
+            this._socket.onopen = function () {
                 util.log('socket opened');
                 client._isConnected = true;
                 var payload = MessageBuilder.buildAuthRequest(0, userName, authData);
@@ -95,12 +95,12 @@ var client = (function () {
                 client.send(data.buffer);
             };
 
-            this._socket.onClose = function () {
+            this._socket.onclose = function () {
                 util.log('socket closed');
                 client._isConnected = false;
             };
 
-            this._socket.onMessage = function (msg) {
+            this._socket.onmessage = function (msg) {
                 client.onMessage(new Uint8Array(msg.data));
             };
         };
