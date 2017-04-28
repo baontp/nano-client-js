@@ -192,12 +192,12 @@ var client = (function () {
             }
             case NotifyType.USER_JOINED_ROOM: {
                 room = new Room(payload);
-                this.emitNotify(Event.onUserJoinedRoom, room);
+                this.emitNotify(Event.onUserJoinedRoom, room, payload.u);
                 break;
             }
             case NotifyType.USER_LEFT_ROOM: {
                 room = new Room(payload);
-                this.emitNotify(Event.onUserLeftRoom, room);
+                this.emitNotify(Event.onUserLeftRoom, room, payload.u);
                 break;
             }
         }

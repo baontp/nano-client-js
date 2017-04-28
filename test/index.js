@@ -31,23 +31,19 @@ clientInst.onEvent('response', {
         if (result == ResultCode.SUCCESS) {
             setTimeout(function () {
                 console.log('join chat');
-                // clientInst.sendAction('joinChat');
-                // clientInst.sendAction('buyTicket', [0, 1, 2, 3, 4, 5]);
-                clientInst.sendAction('chat', 'userName', function (result, desc) {
-                    console.log('can not chat:', desc);
-                });
+                clientInst.sendAction('joinChat');;
             }, 1000);
         }
     }
 });
 
 clientInst.onEvent('notify', {
-    onUserJoinRoom: function (room, user) {
-        console.log('new user', user.name, 'join room');
+    onUserJoinedRoom: function (room, user) {
+        console.log('new user', user, 'join room');
     },
 
     onUserLeftRoom: function (room, user) {
-        console.log('user', user.name, 'left room');
+        console.log('user', user, 'left room');
     }
 });
 
