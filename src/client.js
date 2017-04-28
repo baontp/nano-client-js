@@ -26,6 +26,7 @@ var client = (function () {
         this._hostname = hostname;
         this._port = port;
         this._eventHandlers = {};
+        this._eventHandlers['user-action'] = {};
         this._userActionHandler = {};
         this._updatePeerHandlers = {};
         this._sessionId = 0;
@@ -159,7 +160,11 @@ var client = (function () {
                 break;
             }
             case RequestType.USER_ACTION: {
-                this.emitResponse(Event.onUserActionDone, resultCode, payload.a, payload.m);
+                var responseHandler = !!payload.a ? this._eventHandlers['user-action'][payload.a] : null;
+                if (!!responseHandler) {
+                    responseHandler.call(this, resultCode, payload.d);
+                    delete this._eventHandlers['user-action'][payload.a];
+                }
                 break;
             }
             case RequestType.JOIN_ROOM:
@@ -196,21 +201,33 @@ var client = (function () {
     };
 
     Client.prototype.handleUpdatePeer = function (message) {
-        if(message.getPayloadType() == PayloadType.JSON) {
-            this.emitUpdatePeer(message.getUpdateType(), message.getPayloadString());
+        if (message.getPayloadType() == PayloadType.JSON) {
+            this.emitUpdatePeer(message.getUpdateType(), JSON.parse(message.getPayloadString()));
         } else {
             this.emitUpdatePeer(message.getUpdateType(), message.getPayload());
         }
     };
 
     Client.prototype.sendAction = function (action) {
+        if (!action) throw new Error('missing action');
+
         var args = [];
-        for (var i = 1; i < arguments.length; ++i) {
+        var offset = 0;
+        var responseHandler = null;
+        if (arguments.length > 1 && typeof arguments[arguments.length - 1] === 'function') {
+            responseHandler = arguments[arguments.length - 1];
+            offset = 1;
+        }
+        for (var i = 1, l = arguments.length - offset; i < l; ++i) {
             args[i - 1] = arguments[i];
         }
-        var payload = MessageBuilder.buildActionRequest(action, args);
+        var payload = MessageBuilder.buildActionRequest(action, args.length > 0 ? args : null);
         var data = MessageBuilder.buildRequest(this._sessionId, RequestType.USER_ACTION, payload);
         this.send(data.buffer);
+
+        if (!!responseHandler) {
+            this._eventHandlers['user-action'][action] = responseHandler;
+        }
     };
 
     Client.prototype.emitResponse = function (event) {

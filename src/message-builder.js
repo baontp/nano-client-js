@@ -17,11 +17,11 @@ MessageBuilder.buildAuthRequest = function (recovery, user, authData) {
 };
 
 MessageBuilder.buildActionRequest = function (action, args) {
-    var json = {
-        a: action,
-        p: args
-    };
-    return JSON.stringify(json);
+    if(!!args){
+        return JSON.stringify({a: action, p: args});
+    } else {
+        return JSON.stringify({a: action});
+    }
 };
 
 MessageBuilder.buildRequest = function (sessionId, requestType, payload, payloadType) {
