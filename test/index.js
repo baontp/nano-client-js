@@ -2,7 +2,8 @@ var Client = require('../').Client;
 var Util = require('../').Util;
 var ResultCode = require('../').ResultCode;
 
-var clientInst = new Client('localhost', 9000);
+var clientInst = new Client();
+clientInst.init('localhost', 9000);
 clientInst.connect('baontp', {});
 
 var UpdateType = {
@@ -19,13 +20,6 @@ clientInst.onEvent('response', {
         console.log(result + ' : ' + msg);
     },
 
-    onUserActionDone: function (result, action, desc) {
-        if(action == 'buyTicket' && result == ResultCode.SUCCESS) {
-
-        }
-        console.log('perform action', action, 'with result', ResultCode[result], 'with desc', desc);
-    },
-
     onFindRoomDone: function (room, result) {
         if (result == ResultCode.SUCCESS) {
             console.log('join room', room.id);
@@ -37,12 +31,14 @@ clientInst.onEvent('response', {
         if (result == ResultCode.SUCCESS) {
             setTimeout(function () {
                 console.log('join chat');
-                clientInst.sendAction('joinChat');
+                // clientInst.sendAction('joinChat');
                 // clientInst.sendAction('buyTicket', [0, 1, 2, 3, 4, 5]);
+                clientInst.sendAction('chat', 'userName', function (result, desc) {
+                    console.log('can not chat:', desc);
+                });
             }, 1000);
         }
     }
-
 });
 
 clientInst.onEvent('notify', {
@@ -71,7 +67,7 @@ clientInst.onUserAction({
     joinChat: function (userName) {
         console.log(userName, 'join chat room');
 
-        clientInst.sendAction('chat', 'hello', 'vinhnt');
+        clientInst.sendAction('chat', 'userName');
     },
 
     leaveChat: function (userName) {
@@ -84,7 +80,6 @@ var updatePeerHandler = {};
 updatePeerHandler[UpdateType.CHAT_LIST] = function (payload) {
 
 };
-clientInst.onUpdatePeer(UpdateType.CHAT_LIST, function (payload) {
-    var users = JSON.parse(payload);
+clientInst.onUpdatePeer(UpdateType.CHAT_LIST, function (users) {
     console.log('user list', users);
 });

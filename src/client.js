@@ -21,10 +21,8 @@ var NotifyType = constants.NotifyType;
 var Event = constants.Event;
 
 var client = (function () {
-    function Client(hostname, port) {
+    function Client() {
         this._socket = null;
-        this._hostname = hostname;
-        this._port = port;
         this._eventHandlers = {};
         this._eventHandlers['user-action'] = {};
         this._userActionHandler = {};
@@ -33,8 +31,12 @@ var client = (function () {
         this._recovering = false;
     }
 
+    Client.prototype.init = function (hostname, port) {
+        this._hostname = hostname;
+        this._port = port;
+    };
+
     if (browser.name == 'node') {
-        var WebSocket = require('ws');
         /**
          *
          * @param {String} hostname
@@ -49,6 +51,7 @@ var client = (function () {
             this._authData = authData;
 
             var client = this;
+            var WebSocket = require('ws');
             this._socket = new WebSocket('ws://' + this._hostname + ':' + this._port);
             this._socket.on('open', function () {
                 util.log('socket opened');
@@ -97,9 +100,9 @@ var client = (function () {
                 client._isConnected = false;
             };
 
-            this._socket.on('message', function (msg) {
+            this._socket.onMessage = function (msg) {
                 client.onMessage(new Uint8Array(msg.data));
-            });
+            };
         };
     }
 
