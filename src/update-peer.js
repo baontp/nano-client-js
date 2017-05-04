@@ -1,18 +1,26 @@
-
 var util = require('./util');
 var constants = require('./constants');
 var MessageType = constants.MessageType;
 var PayloadType = constants.PayloadType;
 
 var UpdatePeer = (function () {
-    function UpdatePeer(responseBytes, startIndex) {
-        this.messageType = responseBytes[startIndex++];
-        this.updateType = responseBytes[startIndex++];
-        this.payLoadType = responseBytes[startIndex++];
-        this.payLoadSize = util.bytesToInteger(responseBytes, startIndex); startIndex += 4;
-        this.payLoad = new Uint8Array(this.payLoadSize);
-        for (var i = 0; i < this.payLoadSize; i++) {
-            this.payLoad[i] = responseBytes[startIndex + i];
+    function UpdatePeer(responseBytes, index) {
+        this.messageType = responseBytes[index++];
+        this.updateType = responseBytes[index++];
+        this.payLoadType = responseBytes[index++];
+        this.payLoadSize = util.bytesToInt(responseBytes, index); index += 4;
+        if (this.payLoadType == PayloadType.NUMBER) {
+            if (this.payLoadSize == 1) {
+                this.payLoad = responseBytes[index];
+            }
+            else {
+                this.payLoad = util.bytesToInt(responseBytes, index);
+            }
+        } else {
+            this.payLoad = new Uint8Array(this.payLoadSize);
+            for (var i = 0; i < this.payLoadSize; i++) {
+                this.payLoad[i] = responseBytes[index + i];
+            }
         }
     }
 

@@ -11,7 +11,7 @@ var Notify = (function () {
         this.messageType = responseBytes[startIndex++];
         this.notifyType = responseBytes[startIndex++];
         this.payLoadType = responseBytes[startIndex++];
-        this.payLoadSize = util.bytesToInteger(responseBytes, startIndex); startIndex += 4;
+        this.payLoadSize = util.bytesToInt(responseBytes, startIndex); startIndex += 4;
         this.payLoad = new Uint8Array(this.payLoadSize);
         for (var i = 0; i < this.payLoadSize; i++) {
             this.payLoad[i] = responseBytes[startIndex + i];
@@ -45,7 +45,7 @@ var Notify = (function () {
     Notify.prototype.debug = function () {
         util.log("=========Notify=========");
         util.log("messageType : " + MessageType[this.getMessageType()]);
-        util.log("notifyType  : " + UpdateType[this.getUpdateType()]);
+        util.log("notifyType  : " + NotifyType[this.getNotifyType()]);
         util.log("payLoadType : " + PayloadType[this.getPayloadType()]);
         util.log("payLoadSize : " + this.getPayloadSize());
         util.log("payLoad     : " + this.getPayloadString());

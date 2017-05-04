@@ -66,7 +66,7 @@ exports.string2bin = function (str) {
     return data;
 };
 
-exports.bytesToInteger = function (bytes, offset) {
+exports.bytesToInt = function (bytes, offset) {
     var value = 0;
     for (var i = 0; i < 4; i++) {
         value = (value << 8) + (bytes[offset + i] & 0xff);

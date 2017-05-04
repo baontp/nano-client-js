@@ -13,7 +13,7 @@ var Response = (function () {
         this.requestType = responseBytes[startIndex++];
         this.resultCode = responseBytes[startIndex++];
         this.payLoadType = responseBytes[startIndex++];
-        this.payLoadSize = util.bytesToInteger(responseBytes, startIndex); startIndex += 4;
+        this.payLoadSize = util.bytesToInt(responseBytes, startIndex); startIndex += 4;
         this.payLoad = new Uint8Array(this.payLoadSize);
         for (var i = 0; i < this.payLoadSize; i++) {
             this.payLoad[i] = responseBytes[startIndex + i];
