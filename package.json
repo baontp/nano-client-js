@@ -1,16 +1,34 @@
 {
-  "name": "nano-client",
+  "name": "nano-client-js",
   "version": "1.0.0",
   "description": "js-client sdk for nano-framework",
   "main": "index.js",
   "scripts": {
     "test": "node test/index.js"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "baontp",
+  "license": "MIT",
   "dependencies": {
     "detect-browser": "^1.7.0",
-    "hashmap": "^2.1.0",
     "ws": "^2.0.3"
-  }
+  },
+  "directories": {
+    "test": "test"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/baontp/nano-client-js.git"
+  },
+  "keywords": [
+    "nano",
+    "client",
+    "js",
+    "nano-framework",
+    "websocket"
+  ],
+  "bugs": {
+    "url": "https://github.com/baontp/nano-client-js/issues"
+  },
+  "homepage": "https://github.com/baontp/nano-client-js#readme"
 }

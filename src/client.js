@@ -1,6 +1,5 @@
-/**
- * Created by baonguyen on 4/24/2017.
- */
+'use strict';
+
 var browser = require('detect-browser');
 var ee = require('events');
 var MessageBuilder = require('./message-builder');
@@ -9,7 +8,6 @@ var Notify = require('./notify');
 var UpdatePeer = require('./update-peer');
 var Room = require('./room');
 var util = require('./util');
-var HashMap = require('hashmap');
 var constants = require('./constants');
 var ServiceType = constants.ServiceType;
 var MessageType = constants.MessageType;
