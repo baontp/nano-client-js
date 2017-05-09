@@ -1,5 +1,6 @@
 {
   "name": "nano-client-js",
+  "version": "1.0.2",
   "description": "js-client sdk for nano-framework",
   "main": "index.js",
   "scripts": {
