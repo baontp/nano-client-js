@@ -261,8 +261,8 @@ var client = (function () {
     Client.prototype.emitUserAction = function (payload) {
         let action = payload.a;
         let params = payload.p;
-        let user = new User(payload.uid);
         if (this._userActionHandler[action]) {
+            let user = payload.uid ? new User(payload.uid) : null;
             if (!!user) {
                 params.unshift(user);
                 this._userActionHandler[action].apply(this, params);
