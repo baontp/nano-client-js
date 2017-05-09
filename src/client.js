@@ -9,6 +9,7 @@ var UpdatePeer = require('./update-peer');
 var Room = require('./room');
 var util = require('./util');
 var constants = require('./constants');
+var User = require('./user');
 var ServiceType = constants.ServiceType;
 var MessageType = constants.MessageType;
 var PayloadType = constants.PayloadType;
@@ -185,7 +186,7 @@ var client = (function () {
         var room;
         switch (notifyType) {
             case NotifyType.USER_ACTION: {
-                this.emitUserAction(payload.a, payload.p);
+                this.emitUserAction(payload);
                 break;
             }
             case NotifyType.USER_JOINED_ROOM: {
@@ -257,9 +258,17 @@ var client = (function () {
         }
     };
 
-    Client.prototype.emitUserAction = function (action, params) {
+    Client.prototype.emitUserAction = function (payload) {
+        let action = payload.a;
+        let params = payload.p;
+        let user = new User(payload.uid);
         if (this._userActionHandler[action]) {
-            this._userActionHandler[action].apply(this, params);
+            if (!!user) {
+                params.unshift(user);
+                this._userActionHandler[action].apply(this, params);
+            } else {
+                this._userActionHandler[action].apply(this, params);
+            }
         } else {
             util.log('user action', action, 'is not handled');
         }
